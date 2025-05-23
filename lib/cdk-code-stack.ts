@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as path from 'path';
 
 export class CdkCodeStack extends cdk.Stack {
@@ -24,6 +25,11 @@ export class CdkCodeStack extends cdk.Stack {
       value: helloFunction.functionArn,
       description: 'ARN da função Lambda',
       exportName: 'HelloFunctionArn',
+    });
+
+    new s3.Bucket(this, 'NewBucket', {
+      bucketName: 'teste-bucket',
+      versioned: false
     });
   }
 }
