@@ -29,7 +29,6 @@ export class CdkCodeStack extends cdk.Stack {
 
     new s3.Bucket(this, 'NewBucket', {
       bucketName: 'teste-bucket',
-      logs: "lfpo-bucket-logs",
       versioned: false,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
