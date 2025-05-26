@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from 'path';
 
 export class CdkCodeStack extends cdk.Stack {
@@ -30,6 +31,12 @@ export class CdkCodeStack extends cdk.Stack {
     new s3.Bucket(this, 'NewBucket', {
       bucketName: 'teste-bucket',
       versioned: false
+    });
+
+    new s3.Bucket(this, 'NewBucketPublic', {
+      bucketName: 'public-bucket',
+      versioned: false,
+      publicReadAccess: true
     });
   }
 }
