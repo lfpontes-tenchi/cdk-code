@@ -42530,7 +42530,7 @@ async function run() {
     // 2. Inicializar Clientes
     const octokit = github.getOctokit(githubToken);
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
     // 3. Obter Contexto do Pull Request
     const pr = github.context.payload.pull_request;
