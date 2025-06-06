@@ -1,0 +1,22 @@
+name: Gemini AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize] # Roda ao abrir e ao atualizar um PR
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # Permissão necessária para comentar no PR
+    steps:
+      # O primeiro passo é sempre fazer o checkout do seu código
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Aqui usamos a nossa action customizada
+      - name: Perform Gemini Code Review
+        uses: ./.github/actions/gemini-code-review # Caminho para a nossa action
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
