@@ -18,5 +18,5 @@ jobs:
       - name: Perform Gemini Code Review
         uses: ./.github/actions/gemini-code-review # Caminho para a nossa action
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
