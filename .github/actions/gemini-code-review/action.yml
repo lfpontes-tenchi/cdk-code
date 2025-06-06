@@ -1,0 +1,12 @@
+name: 'Gemini Code Review'
+description: 'Uses Gemini AI to perform a line-by-line code review focusing on security and quality.'
+inputs:
+  github-token:
+    description: 'The GitHub token to post comments on the PR'
+    required: true
+  gemini-api-key:
+    description: 'The API key for the Google Gemini AI'
+    required: true
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
