@@ -42577,20 +42577,26 @@ async function run() {
 
     let reviewComments;
     try {
-      // Tenta encontrar o início e o fim do array JSON na resposta de texto
-      const startIndex = textResponse.indexOf('[');
-      const endIndex = textResponse.lastIndexOf(']');
+      let textResponse = response.text();
+
+      // --- LINHA NOVA E CRUCIAL ---
+      // Sanitiza a resposta para escapar corretamente as barras invertidas para o parser JSON
+      const sanitizedText = textResponse.replace(/\\/g, '\\\\');
+      
+      // O resto do código agora usa o texto sanitizado
+      const startIndex = sanitizedText.indexOf('[');
+      const endIndex = sanitizedText.lastIndexOf(']');
       
       if (startIndex === -1 || endIndex === -1) {
         throw new Error("No JSON array found in the response.");
       }
 
-      const jsonText = textResponse.substring(startIndex, endIndex + 1);
+      const jsonText = sanitizedText.substring(startIndex, endIndex + 1);
       reviewComments = JSON.parse(jsonText);
-      console.log("Successfully extracted and parsed JSON response from Gemini.");
+      console.log("Successfully sanitized, extracted, and parsed JSON response from Gemini.");
 
     } catch(e) {
-      console.error("Raw response from Gemini:", textResponse);
+      console.error("Raw response from Gemini (before sanitization):", response.text());
       core.setFailed(`Could not parse the JSON response from the AI model. Error: ${e.message}`);
       return;
     }
