@@ -64,11 +64,15 @@ async function run() {
     try {
       let textResponse = response.text();
 
-      // --- LINHA NOVA E CRUCIAL ---
-      // Sanitiza a resposta para escapar corretamente as barras invertidas para o parser JSON
-      const sanitizedText = textResponse.replace(/\\/g, '\\\\');
+      // --- ETAPA 1: CORRIGIR VÍRGULAS FALTANTES (O NOVO FIX) ---
+      // Procura por } seguido por { (com espaços/newlines no meio) e insere uma vírgula.
+      const fixedCommasText = textResponse.replace(/\}(?=\s*\{)/g, '},');
+
+      // --- ETAPA 2: SANITIZAR BARRAS INVERTIDAS ---
+      const sanitizedText = fixedCommasText.replace(/\\/g, '\\\\');
       
-      // O resto do código agora usa o texto sanitizado
+      // --- ETAPA 3: EXTRAIR O BLOCO JSON ---
+      // O resto do código agora usa o texto totalmente corrigido e sanitizado
       const startIndex = sanitizedText.indexOf('[');
       const endIndex = sanitizedText.lastIndexOf(']');
       
@@ -77,15 +81,18 @@ async function run() {
       }
 
       const jsonText = sanitizedText.substring(startIndex, endIndex + 1);
+
+      // --- ETAPA 4: FAZER O PARSE FINAL ---
       reviewComments = JSON.parse(jsonText);
-      console.log("Successfully sanitized, extracted, and parsed JSON response from Gemini.");
+      console.log("Successfully auto-corrected, sanitized, extracted, and parsed JSON response from Gemini.");
 
     } catch(e) {
-      console.error("Raw response from Gemini (before sanitization):", response.text());
+      // Para depuração, logamos a resposta crua que recebemos ANTES de qualquer tratamento
+      console.error("Raw response from Gemini (before any correction):", response.text());
       core.setFailed(`Could not parse the JSON response from the AI model. Error: ${e.message}`);
       return;
     }
-    
+
     if (!reviewComments || reviewComments.length === 0) {
         console.log("Gemini found no issues to comment on.");
         return;
