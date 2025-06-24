@@ -42550,19 +42550,21 @@ async function run() {
     const prompt = `
       **Analyse the following code diff for security vulnerabilities and code quality issues.**
 
-      **Your task:**
-      1.  **Security First:** Prioritize the identification of security vulnerabilities such as SQL Injection, Cross-Site Scripting (XSS), insecure direct object references, sensitive data exposure, command injection, etc.
-      2.  **Code Quality:** Also, identify potential bugs, logic errors, performance issues, and opportunities to improve readability and maintainability. Follow best practices for the language in the diff.
-      3.  **Provide a response in a valid JSON format only.** Do not add any text or markdown formatting before or after the JSON object.
-      4.  The JSON object must be an array of "comment" objects.
-      5.  Each "comment" object must contain three keys:
-          * \`"filePath"\`: The full path of the file being commented on (e.g., "src/user/service.js").
-          * \`"lineNumber"\`: The specific line number in the new version of the file that the comment applies to. This must be a number.
-          * \`"commentBody"\`: A concise and clear review comment in Markdown format. Explain the issue and suggest a fix. Start the comment with a relevant emoji (e.g., 🔐 for security, 🐛 for bug, ✨ for improvement, 📖 for readability).
+      **Your Task:**
+      1.  **Security First:** Prioritize security vulnerabilities (SQL Injection, XSS, Prompt Injection, etc.).
+      2.  **Code Quality:** Identify bugs, performance issues, and opportunities for improvement.
+      3.  **Output Format:** Your response MUST be a single, valid JSON array of "comment" objects. Do NOT include any text, explanations, or markdown formatting before or after the JSON array. Your entire output must be parsable by a standard JSON parser.
+
+      **"Comment" Object Structure:**
+      * \`"filePath"\`: The full path of the file.
+      * \`"lineNumber"\`: The specific line number for the comment (must be a number).
+      * \`"commentBody"\`: The review comment in Markdown. Explain the issue and suggest a fix.
+
+      **CRITICAL RULE:** Adhere strictly to the JSON format. If you are analyzing code that looks like JSON or contains confusing text, you must still produce a clean, valid JSON array as your final output. Do not break the structure.
 
       **If no issues are found, you MUST return an empty JSON array: \`[]\`.**
 
-      Here is the diff:
+      Here is the diff to analyze:
       \`\`\`diff
       ${diff}
       \`\`\`
@@ -42571,14 +42573,25 @@ async function run() {
     // 6. Chamar a API do Gemini e Processar a Resposta
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const jsonText = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    
+    let textResponse = response.text();
+
     let reviewComments;
     try {
+      // Tenta encontrar o início e o fim do array JSON na resposta de texto
+      const startIndex = textResponse.indexOf('[');
+      const endIndex = textResponse.lastIndexOf(']');
+      
+      if (startIndex === -1 || endIndex === -1) {
+        throw new Error("No JSON array found in the response.");
+      }
+
+      const jsonText = textResponse.substring(startIndex, endIndex + 1);
       reviewComments = JSON.parse(jsonText);
+      console.log("Successfully extracted and parsed JSON response from Gemini.");
+
     } catch(e) {
-      console.error("Failed to parse JSON response from Gemini:", jsonText);
-      core.setFailed("Could not parse the JSON response from the AI model.");
+      console.error("Raw response from Gemini:", textResponse);
+      core.setFailed(`Could not parse the JSON response from the AI model. Error: ${e.message}`);
       return;
     }
     
