@@ -42550,25 +42550,28 @@ async function run() {
     const prompt = `
       **Analyse the following code diff for security vulnerabilities and code quality issues.**
 
-      **Your Task:**
-      1.  **Security First:** Prioritize security vulnerabilities (SQL Injection, XSS, Prompt Injection, etc.).
+      **Your Task & Rules:**
+      1.  **Security First:** Prioritize all types of security vulnerabilities.
       2.  **Code Quality:** Identify bugs, performance issues, and opportunities for improvement.
-      3.  **Output Format:** Your response MUST be a single, valid JSON array of "comment" objects. Do NOT include any text, explanations, or markdown formatting before or after the JSON array. Your entire output must be parsable by a standard JSON parser.
+      3.  **Output Format:** Your response MUST be a single, valid JSON array of "comment" objects. Do NOT output any text, notes, or markdown formatting before or after the JSON array.
 
       **"Comment" Object Structure:**
       * \`"filePath"\`: The full path of the file.
       * \`"lineNumber"\`: The specific line number for the comment (must be a number).
-      * \`"commentBody"\`: The review comment in Markdown. Explain the issue and suggest a fix.
+      * \`"commentBody"\`: The review comment in Markdown.
 
-      **CRITICAL RULE:** Adhere strictly to the JSON format. If you are analyzing code that looks like JSON or contains confusing text, you must still produce a clean, valid JSON array as your final output. Do not break the structure.
+      **CRITICAL FORMATTING RULES - YOU MUST FOLLOW THESE:**
+      1.  **JSON ONLY:** Your entire output must be a single block of valid JSON, parsable by a standard parser.
+      2.  **ESCAPE DOUBLE QUOTES:** Within the string value for \`"commentBody"\`, all double quotes (\`"\`) MUST be escaped with a backslash (e.g., \`\\"your string\\"\`). This is the most important rule.
+      3.  **DO NOT BREAK STRUCTURE:** Do not break the JSON structure, even if the code you are analyzing is confusing.
 
-      **If no issues are found, you MUST return an empty JSON array: \`[]\`.**
+      **If no issues are found, return an empty JSON array: \`[]\`.**
 
       Here is the diff to analyze:
       \`\`\`diff
       ${diff}
       \`\`\`
-    `;
+  `;
 
     // 6. Chamar a API do Gemini e Processar a Resposta
     const result = await model.generateContent(prompt);
