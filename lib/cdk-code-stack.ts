@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from 'path';
 
 export class CdkCodeStack extends cdk.Stack {
@@ -32,8 +33,14 @@ export class CdkCodeStack extends cdk.Stack {
       versioned: false
     });
 
-    new s3.Bucket(this, 'MyPublicBucket', {
-        publicReadAccess: true,
+    const myBucket = new s3.Bucket(this, 'MyPublicBucket', {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
+
+    myBucket.addToResourcePolicy(new iam.PolicyStatement({
+      actions: ['s3:GetObject'],
+      resources: [myBucket.arnForObjects('*')],
+      principals: [new iam.AccountPrincipal('ACCOUNT_ID_TO_GRANT_ACCESS')]
+    }));
   }
 }
