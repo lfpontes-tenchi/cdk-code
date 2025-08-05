@@ -29,7 +29,8 @@ export class CdkCodeStack extends cdk.Stack {
 
     new s3.Bucket(this, 'NewBucket', {
       bucketName: 'teste-bucket',
-      versioned: false
+      versioned: false,
+      encryption: s3.BucketEncryption.S3_MANAGED
     });
   }
 }
