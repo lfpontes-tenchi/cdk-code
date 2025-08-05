@@ -31,5 +31,9 @@ export class CdkCodeStack extends cdk.Stack {
       bucketName: 'teste-bucket',
       versioned: false
     });
+
+    new s3.Bucket(this, 'MyPublicBucket', {
+        publicReadAccess: true,
+    });
   }
 }
